@@ -2,46 +2,40 @@
 //  ViewController.swift
 //  Scraping
 //
-//  Created by 田村圭佑 on 2021/05/22.
+//  Created on 2021/05/22.
 //
 
 import UIKit
-//HTTP通信してくれるやつ
 import Alamofire
-//スクレイピングしてくれるやつ
 import Kanna
 
-class RecipeViewController: UITableViewController {
-    var beefbowl = [Gyudon]()
+class RecipeTableViewController: UITableViewController {
+    var cooking = [Recipe]()
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.getGyudonPrice()
+        self.getRecipe()
     }
-    func getGyudonPrice() {
-    //スクレイピング対象のサイトを指定
+    func getRecipe() {
         AF.request("https://cookpad.com/recipe/5593539").responseString { response in
             switch response.result {
             case let .success(value):
                 if let doc = try? HTML(html: value, encoding: .utf8) {
                     
-                    // 牛丼のサイズをXpathで指定
-                    var sizes = [String]()
+                    var ingredients = [String]()
                     for link in doc.xpath("//span[@class='name']") {
-                        sizes.append(link.text ?? "")
+                        ingredients.append(link.text ?? "")
                     }
                     
-                    //牛丼の値段をXpathで指定
-                    var prices = [String]()
+                    var amounts = [String]()
                     for link in doc.xpath("//div[@class='ingredient_quantity amount']") {
-                        prices.append(link.text ?? "")
+                        amounts.append(link.text ?? "")
                     }
                     
-                    //牛丼のサイズ分だけループ
-                    for (index, value) in sizes.enumerated() {
-                        let gyudon = Gyudon()
-                        gyudon.size = value
-                        gyudon.price = prices[index]
-                        self.beefbowl.append(gyudon)
+                    for (index, value) in ingredients.enumerated() {
+                        let recipe = Recipe()
+                        recipe.ingredient = value
+                        recipe.amount = amounts[index]
+                        self.cooking.append(recipe)
                     }
                     self.tableView.reloadData()
                 }
@@ -56,15 +50,15 @@ class RecipeViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.beefbowl.count
+        return self.cooking.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
 
-        let gyudon = self.beefbowl[indexPath.row]
-        cell.textLabel?.text = gyudon.size
-        cell.detailTextLabel?.text = gyudon.price
+        let recipe = self.cooking[indexPath.row]
+        cell.textLabel?.text = recipe.ingredient
+        cell.detailTextLabel?.text = recipe.amount
 
         return cell
     }

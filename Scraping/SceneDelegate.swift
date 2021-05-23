@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  Scraping
 //
-//  Created by 田村圭佑 on 2021/05/22.
+//  Created on 2021/05/22.
 //
 
 import UIKit
